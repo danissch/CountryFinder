@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ALL_COUNTRIES_URL</key>
+	<string>https://restcountries-v1.p.rapidapi.com/all</string>
+	<key>HOST</key>
+	<string>restcountries-v1.p.rapidapi.com</string>
+	<key>APIKEY</key>
+	<string>97c89c5cb5mshc73d0c89c3c72d8p12b0d4jsn0aac3b88c286</string>
+</dict>
+</plist>
