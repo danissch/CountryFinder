@@ -16,7 +16,7 @@ struct CountryModel: Codable {
     let callingCodes: [String]
     let capital: String
     let altSpellings: [String]
-    let region: Region
+    let region: String
     let subregion: String
     let population: Int
     let latlng: [Double]
@@ -30,15 +30,6 @@ struct CountryModel: Codable {
     let relevance: String?
 }
 
-enum Region: String, Codable {
-    case africa = "Africa"
-    case americas = "Americas"
-    case asia = "Asia"
-    case empty = ""
-    case europe = "Europe"
-    case oceania = "Oceania"
-    case polar = "Polar"
-}
 
 // MARK: - Translations
 struct Translations: Codable {
