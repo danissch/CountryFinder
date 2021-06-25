@@ -18,17 +18,12 @@ extension UIViewController {
     
     func pushVc(_ uiViewController: UIViewController, animated:Bool = true, navigationBarIsHidden:Bool, presentStyle:UIModalPresentationStyle = .fullScreen, transitionStyle:UIModalTransitionStyle = .coverVertical){
         uiViewController.modalPresentationStyle = presentStyle
-        
-        
         self.navigationController?.modalPresentationStyle = presentStyle
         self.navigationController?.modalTransitionStyle = transitionStyle
-        
         if navigationBarIsHidden{
             self.navigationController?.navigationBar.isHidden = true
         }
-        
         self.navigationController?.pushViewController(uiViewController, animated: animated)
-
     }
     
     func presentWithStyle1(vcFrom:UIViewController, vcTo:UIViewController, animated:Bool = true, presentStyle:UIModalPresentationStyle = .fullScreen, transitionStyle:UIModalTransitionStyle = .coverVertical){
@@ -42,9 +37,9 @@ extension UIViewController {
         let image = UIImage(named: image)
         let tintedImage = image?.withRenderingMode(.alwaysTemplate)
         button.setImage(tintedImage, for: .normal)
-        button.tintColor = .white
+        button.tintColor = .label
         button.addTarget(self, action: #selector(navigateBack), for: .touchUpInside)
-
+        
         let menuBarItem = UIBarButtonItem(customView: button)
         menuBarItem.tintColor = .white
         menuBarItem.customView?.translatesAutoresizingMaskIntoConstraints = false

@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CountryDetailViewController" customModule="CountryFinder" customModuleProvider="target">
             <connections>
+                <outlet property="centerCountryButton" destination="ebx-5O-RaY" id="RCh-Xb-sY7"/>
                 <outlet property="mapView" destination="tdd-v8-Jpw" id="381-aL-XY7"/>
                 <outlet property="view" destination="iN0-l3-epB" id="i3D-nj-dm5"/>
             </connections>
@@ -23,14 +24,27 @@
                 <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="tdd-v8-Jpw">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                 </mapView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ebx-5O-RaY">
+                    <rect key="frame" x="87.5" y="607" width="200" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="fiY-5d-e65"/>
+                        <constraint firstAttribute="width" constant="200" id="u8R-Tz-FM6"/>
+                    </constraints>
+                    <state key="normal" title="Center map"/>
+                    <connections>
+                        <action selector="centerCountryButtonAction:" destination="-1" eventType="touchUpInside" id="1Ai-VF-ZKr"/>
+                    </connections>
+                </button>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="tdd-v8-Jpw" secondAttribute="bottom" id="7rF-xE-3Bo"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="ebx-5O-RaY" secondAttribute="bottom" constant="30" id="9dx-G7-P57"/>
                 <constraint firstItem="tdd-v8-Jpw" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="MZg-lL-JC2"/>
                 <constraint firstItem="tdd-v8-Jpw" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="n50-qZ-3yz"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="tdd-v8-Jpw" secondAttribute="trailing" id="xfL-xH-GY5"/>
+                <constraint firstItem="ebx-5O-RaY" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="yS9-mR-wmT"/>
             </constraints>
             <point key="canvasLocation" x="51" y="90"/>
         </view>

@@ -13,6 +13,6 @@ class NoRecordsFoundTableViewCell: UITableViewCell {
     @IBOutlet weak var messageLabel: UILabel!
     
     override func awakeFromNib() {
-        
+        super.awakeFromNib()
     }
 }

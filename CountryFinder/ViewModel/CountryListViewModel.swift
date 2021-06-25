@@ -22,7 +22,7 @@ class CountryListViewModel {
     private var privFilteredCountryList = [CountryModel]()
     var filteredCountryList: [CountryModel] {
         get { return privFilteredCountryList }
-        set { privCountryList = newValue }
+        set { privFilteredCountryList = newValue }
     }
         
     init() {}
@@ -65,10 +65,11 @@ class CountryListViewModel {
         return countryList.count
     }
     
+    func filteredCountryCount() -> Int {
+        return filteredCountryList.count
+    }
+    
     
 }
 
-extension CountryListViewModel {
-    
-}
 

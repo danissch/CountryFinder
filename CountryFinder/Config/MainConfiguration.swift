@@ -15,30 +15,20 @@ class MainConfiguration {
     var allCountriesUrl: String = ""
     
     func readPropertyList(){
-             
         var format = PropertyListSerialization.PropertyListFormat.xml //format of the property list
             var plistData:[String:AnyObject] = [:]  //our data
         let plistPath:String? = Bundle.main.path(forResource: "config", ofType: "plist")! //the path of the data
         let plistXML = FileManager.default.contents(atPath: plistPath!)! //the data in XML format
-            do{ //convert the data to a dictionary and handle errors.
-                plistData = try PropertyListSerialization.propertyList(from: plistXML,options: .mutableContainersAndLeaves,format: &format)as! [String:AnyObject]
-                 
-                //assign the values in the dictionary to the properties
-                apikey = plistData["APIKEY"] as! String
-                host = plistData["HOST"] as! String
-                
-                allCountriesUrl = "\(plistData["ALL_COUNTRIES_URL"] as! String)?x-rapidapi-key=\(apikey)&x-rapidapi-host=\(host)"
-                
-                
-//                let red = plistData["Red"] as! CGFloat
-//                let green = plistData["Green"] as! CGFloat
-//                let blue = plistData["Blue"] as! CGFloat
-//                color1 = UIColor(red: red, green: green, blue: blue, alpha: 1.0)
-//
-//                pies = plistData["Pies"] as! [String]
-            }
-            catch{ // error condition
-                print("Error reading plist: \(error), format: \(format)")
-            }
+        do{ //convert the data to a dictionary and handle errors.
+            plistData = try PropertyListSerialization.propertyList(from: plistXML,options: .mutableContainersAndLeaves,format: &format)as! [String:AnyObject]
+             
+            //assign the values in the dictionary to the properties
+            apikey = plistData["APIKEY"] as! String
+            host = plistData["HOST"] as! String
+            allCountriesUrl = "\(plistData["ALL_COUNTRIES_URL"] as! String)?x-rapidapi-key=\(apikey)&x-rapidapi-host=\(host)"
         }
+        catch{ // error condition
+            print("Error reading plist: \(error), format: \(format)")
+        }
+    }
 }

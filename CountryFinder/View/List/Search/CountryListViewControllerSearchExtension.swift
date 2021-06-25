@@ -10,25 +10,34 @@ import UIKit
 
 extension CountryListViewController: UISearchBarDelegate{
     
-    func addSearch() -> CustomSearchBar? {
-        searchView = CustomSearchBar.init(frame: CGRect(x: 0, y: 0, width: Int(UIScreen.main.bounds.width), height: searchBarHeight))
-        searchView = searchView?.getSearchBar(delegate: self as UISearchBarDelegate) as? CustomSearchBar
-        searchView?.resignFirstResponder()
-        return searchView
+    func getSearchBarView() -> CustomSearchBar? {
+        customSearchBar = CustomSearchBar.init(frame: CGRect(x: 0,
+                                                             y: 0,
+                                                             width: Int(UIScreen.main.bounds.width),
+                                                             height: searchBarHeight))
+        customSearchBar = customSearchBar?.getSearchBar(delegate: self as UISearchBarDelegate) as? CustomSearchBar
+        customSearchBar?.resignFirstResponder()
+        return customSearchBar
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         isEditing = true
+        searchBar.searchTextField.text = searchTextFieldValue
+        searchTextFieldValue = ""
+        searchTextFieldIsFirstResponder = false
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         isEditing = false
+        if searchTextFieldIsFirstResponder {
+            searchTextFieldValue = searchBar.searchTextField.text ?? ""
+            searchTextFieldIsFirstResponder = true
+        }
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         isEditing = false
         searchBar.text = ""
-//        self.tableView.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -37,12 +46,23 @@ extension CountryListViewController: UISearchBarDelegate{
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text == "" {
-//            self.searchLocation(toLookFor: "")
-            self.tableView.reloadData()
+            isSearching = false
+            getCountries()
         } else {
-            isEditing = true
-//            self.searchLocation(toLookFor: searchBar.text ?? "")
-//            self.tableView.reloadData()
+            isSearching = true
+            guard let predicateString = searchBar.text?.lowercased() else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+                self.countryListViewModel?.filteredCountryList.removeAll(keepingCapacity: false)
+                guard let newList = self.countryListViewModel?.countryList.filter({($0.name.lowercased().range(of: predicateString) != nil) || ($0.capital.lowercased().range(of: predicateString) != nil) || ($0.region.lowercased().range(of: predicateString) != nil)}) else { return }
+                self.countryListViewModel?.filteredCountryList = newList
+                
+                self.isSearching = (self.countryListViewModel?.filteredCountryCount() == 0) ? false: true
+                self.tableView.reloadData()
+                if self.countryListViewModel?.filteredCountryCount() == 0 {
+                    self.customSearchBar?.setNoResultsMessageSearch(viewController: self)
+                }
+            })
+            
         }
         
     }

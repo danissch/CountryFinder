@@ -13,21 +13,52 @@ class CountryListViewController: UIViewController {
     
     var countryListViewModel: CountryListViewModel?
     private let heightForCells:CGFloat = 130
-    private let heightForHeader:CGFloat = 110
-    let searchBarHeight:Int = 80
-    var searchView:CustomSearchBar?
-    
-    
+    private let heightForHeader:CGFloat = 60
+    private let heightForFooter:CGFloat = 60
+    let searchBarHeight:Int = 60
+    var customSearchBar:CustomSearchBar?
+    var isSearching: Bool = false
+    var searchTextFieldValue: String = ""
+    var searchTextFieldIsFirstResponder: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupViewModel()
         registerViewsTableView()
+        setSomeCustomConfigurations()
         getCountries()
+        self.hideKeyboardWhenTappedAround()
         
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: animated)
+        self.tableView.layoutSubviews()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)        
+    }
 
-
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        if UIDevice.current.orientation.isLandscape {
+            print("Landscape")
+        } else { print("Portrait") }
+        handleSomeOrientationBehaviors()
+    }
+    
 }
 
 // self managament functions
@@ -44,6 +75,25 @@ extension CountryListViewController {
         
     }
     
+    func setSomeCustomConfigurations(){
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = heightForCells
+    }
+    
+    func handleSomeOrientationBehaviors(){
+        guard let searchTextFieldIsFirstResponder = customSearchBar?.searchTextField.isFirstResponder else { return }
+        self.searchTextFieldIsFirstResponder = searchTextFieldIsFirstResponder
+        
+        self.customSearchBar?.searchTextField.resignFirstResponder()
+        self.tableView.reloadData()
+        DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
+            if searchTextFieldIsFirstResponder {
+                self.customSearchBar?.searchTextField.text = self.searchTextFieldValue
+                self.customSearchBar?.searchTextField.becomeFirstResponder()
+            }
+            
+        })
+    }
 }
 
 
@@ -68,8 +118,6 @@ extension CountryListViewController: CountryListViewModelDelegate {
     
 }
 
-
-
 //TableView Relation
 extension CountryListViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -77,11 +125,14 @@ extension CountryListViewController: UITableViewDelegate, UITableViewDataSource 
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.countryListViewModel?.countryCount() ?? 1
+        let countryListCount = self.countryListViewModel?.countryCount()
+        if isSearching{ return countryListViewModel?.filteredCountryCount() ?? 0 }
+        return  ((countryListCount == 0 ? 1 : countryListCount) ?? 1)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let listCount = countryListViewModel?.countryCount()
+        let listCount = isSearching ? countryListViewModel?.filteredCountryCount() : countryListViewModel?.countryCount()
+        
         if listCount == 0  {
             let noRowsCell = tableView.dequeueReusableCell(withIdentifier: "NoRecordsFoundTableViewCell", for: indexPath) as! NoRecordsFoundTableViewCell
             noRowsCell.messageLabel.text = ""
@@ -91,9 +142,8 @@ extension CountryListViewController: UITableViewDelegate, UITableViewDataSource 
         guard let countryListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "CountryListTableViewCell") as? CountryListTableViewCell else {
             return UITableViewCell()
         }
-        countryListTableViewCell.selectedBackgroundView = setBackgroundCellView()
         
-        if let item = countryListViewModel?.countryList[indexPath.row] {
+        if let item = isSearching ? countryListViewModel?.filteredCountryList[indexPath.row] : countryListViewModel?.countryList[indexPath.row] {
             countryListTableViewCell.setCellData(country: item)
         }
         
@@ -102,12 +152,18 @@ extension CountryListViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return heightForCells
+        return UITableView.automaticDimension
+    }
+        
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return tableView.rowHeight
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        
         let headerView = ListHeaderView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: heightForHeader))
-        headerView.setConfigFromViewController(title: "", view: addSearch() ?? UISearchBar())
+        headerView.setConfigFromViewController(title: "", view: getSearchBarView() ?? UISearchBar())
+        
         return headerView
     }
     
@@ -116,7 +172,7 @@ extension CountryListViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-            return 70
+            return heightForFooter
         }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -127,30 +183,17 @@ extension CountryListViewController: UITableViewDelegate, UITableViewDataSource 
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        if countryListViewModel?.countryCount() == 0 { return }
-        let list = countryListViewModel?.countryList
+        let countryCount = countryListViewModel?.countryCount()
+        if countryCount == 0 { return }
+                
+        let list = isSearching ? countryListViewModel?.filteredCountryList : countryListViewModel?.countryList
         
         if let dataItem = list?[indexPath.row] {
             let vc = CountryDetailViewController.instantiateFromXIB() as CountryDetailViewController
-            print("appflow:: dataItem.name selected: \(dataItem.name)")
+            vc.setCountryDetail(country: dataItem)
             pushVc(vc, animated: true, navigationBarIsHidden: false)
         }
         
-    }
-    
-    func setBackgroundCellView() -> UIView {
-        let backGroundSelectedView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: heightForCells))
-        let topColor = UIColor.init(red: 105/255, green: 185/255, blue: 227/255, alpha: 1.0).cgColor
-        let bottomColor = UIColor.init(red: 151/255, green: 205/255, blue: 239/255, alpha: 1.0).cgColor
-        let layer = CAGradientLayer()
-        layer.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: backGroundSelectedView.frame.height)
-        layer.colors = [topColor, bottomColor]
-        layer.locations = [0.0, 1.0]
-        
-        backGroundSelectedView.clipsToBounds = true
-        backGroundSelectedView.layer.addSublayer(layer)
-        return backGroundSelectedView
     }
     
     
